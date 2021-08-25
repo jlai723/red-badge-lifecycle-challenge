@@ -3,12 +3,13 @@ import './PokeFetch.css';
 
 
 class PokeFetch extends Component {
-  constructor() {
-    super()
+  constructor(props) {
+    super(props)
     this.state = {
       pokeInfo: '',
       pokeSprite: '',
       pokeName: '',
+      countdown: 10,
     }
   }
 
@@ -26,18 +27,64 @@ class PokeFetch extends Component {
           pokeName: res.species.name,
         })
       })
+      .then(
+        this.myInterval = setInterval(() => {
+          this.setState({
+            countdown: this.state.countdown - 1
+          })
+          if (this.state.countdown <= 0) {
+            clearInterval(this.myInterval);
+            this.setState({
+              countdown: 0
+            })
+          }
+        }, 1000)    
+      )
       .catch((err) => console.log(err))
   }
 
+  // decrementCount() {
+  //   this.myInterval = setInterval(() => {
+  //     this.setState({
+  //       countdown: this.state.countdown - 1
+  //     })
+  //     if (this.state.countdown <= 0) {
+  //       clearInterval(this.myInterval);
+  //       this.setState({
+  //         countdown: 0
+  //       })
+  //     }
+  //   }, 1000)
+  // }
+
+  resetCount() {
+    if (this.state.countdown === 0) {
+      this.setState({
+        countdown: 10
+      })
+    }
+  }
+
   render() {
+    // console.log(this.state);
     return (
       <div className={'wrapper'}>
-        <button className={'start'} onClick={() => this.fetchPokemon()}>Start!</button>
-        <h1 className={'timer'} >Timer Display</h1>
-        <div className={'pokeWrap'}>
-          <img className={'pokeImg'} src={this.state.pokeSprite} />
-          <h1 className={'pokeName'}>{this.state.pokeName}</h1>
-        </div>
+        <button className={'start'} onClick={() => {
+          this.fetchPokemon();
+          // this.decrementCount();
+          this.resetCount();
+        }}>Start!</button>
+        <h1 className={'timer'} >Timer: {this.state.countdown}</h1>
+        {(this.state.countdown) !== 0
+          ? <div className={'pokeWrap'}>
+            <img className={'pokeImg'} src={this.state.pokeSprite} />
+          </div>
+          :
+          <div className={'pokeWrap'}>
+            <img className={'pokeImgFinal'} src={this.state.pokeSprite} />
+            <h1 className={'pokeName'}>{this.state.pokeName}</h1>
+          </div>
+        }
       </div>
     )
   }
